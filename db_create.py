@@ -1,5 +1,5 @@
-from protrackt import db
-from protrackt.models import Data
+from app import db
+from app.models import Base, Users
 
 db.create_all()
 
