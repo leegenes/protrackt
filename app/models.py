@@ -10,11 +10,17 @@ class Base(db.Model):
 
 class Users(Base):
     username = db.Column(db.String(500))
+    user_email = db.Column(db.String(75))
+    user_password = db.Column(db.String(75))
+
+    def __repr__(self):
+        return self.username
+
+class UserDetails(Base):
+    uid = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_first = db.Column(db.String(50))
     user_last = db.Column(db.String(75))
     user_preferred = db.Column(db.String(50))
-    user_email = db.Column(db.String(75))
-    user_password = db.Column(db.String(75))
 
     def __repr__(self):
         return self.user_preferred
