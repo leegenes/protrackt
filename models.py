@@ -7,7 +7,7 @@ class Base(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime, default=db.funct.current_timestamp(),
+    date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
                                 onupdate=db.func.current_timestamp())
 
 class Topics(Base):
@@ -25,7 +25,7 @@ class Polls(Base):
     vote_count = db.Column(db.Integer, default=0)
     status = db.Column(db.Boolean)
 
-    topic = db.relationship('Topics', foreign_keys=[topic_id].
+    topic = db.relationship('Topics', foreign_keys=[topic_id],
             backref=db.backref('options', lazy='dynamic'))
     option = db.relationship('Options', foreign_keys=[option_id])
 
