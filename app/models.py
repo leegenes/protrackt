@@ -8,7 +8,7 @@ class Base(db.Model):
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
                                 onupdate=db.func.current_timestamp())
 
-class Users(Base):
+class User(Base):
     username = db.Column(db.String(500))
     user_email = db.Column(db.String(75))
     user_password = db.Column(db.String(75))
@@ -16,7 +16,7 @@ class Users(Base):
     def __repr__(self):
         return self.username
 
-class UserDetails(Base):
+class UserDetail(Base):
     uid = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_first = db.Column(db.String(50))
     user_last = db.Column(db.String(75))
