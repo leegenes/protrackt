@@ -8,24 +8,57 @@ class Base(db.Model):
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
                                 onupdate=db.func.current_timestamp())
 
-class User(Base):
-    username = db.Column(db.String(500))
-    user_email = db.Column(db.String(75))
-    user_password = db.Column(db.String(75))
+class Users(Base):
+    uuid = db.Column(db.String(32),
+        unique=True, nullable=False, primary_key=True)
+    username = db.Column(db.String(50),
+        unique=True, nullable=False)
+    email = db.Column(db.String(75),
+        unique=True, nullable=False)
+    password = db.Column(db.String(75),
+        unique=True, nullable=False)
 
     def __repr__(self):
-        return self.username
+        return str(self.uuid) + ", " + self.username
 
 class UserDetail(Base):
-    uid = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_first = db.Column(db.String(50))
-    user_last = db.Column(db.String(75))
-    user_preferred = db.Column(db.String(50))
+    uuid = db.Column(db.String(32), db.ForeignKey('users.uuid'),
+        nullable=False)
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(75))
+    preferred_name = db.Column(db.String(50))
+    address1 = db.Column(db.String(75))
+    address2 = db.Column(db.String(25))
+    city = db.Column(db.String(50))
+    state = db.Column(db.String(2))
+    zipcode = db.Column(db.String(5))
 
     def __repr__(self):
-        return self.user_preferred
+        if not self.preferred_name:
+            return self.first_name + ' ' + self.last_name
+        return self.preferred_name + ' ' + self.last_name
 
-# TODO: build other table models with link to Users
+class Organization(Base):
+    uuid = db.Column(db.String(32), db.ForeignKey('users.uuid'),
+        nullable=False)
+    name = db.Column(db.String(100),
+        nullable=False)
+
+    def __repr__(self):
+        return self.name
+
+class OrganizationDetail(Base):
+    org_id = db.Column(db.Integer, db.ForeignKey('organization.id'),
+        nullable=False)
+    address1 = db.Column(db.String(75))
+    address2 = db.Column(db.String(25))
+    city = db.Column(db.String(50))
+    state = db.Column(db.String(2))
+    zipcode = db.Column(db.String(5))
+    phone = db.Column(db.String(10))
+    website = db.Column(db.String(100))
+
+
 
 # exmaple for connecting tables
 # class Polls(Base):

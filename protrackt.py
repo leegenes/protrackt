@@ -1,13 +1,16 @@
 from flask import Flask, request, make_response, abort, jsonify
 from app import app
-from app.models import Base, User
+from app.models import Base, Users, UserDetail, Organization, \
+    OrganizationDetail
+from uuid import uuid4
 
 @pt.route('/api/v0/users/add_user', methods=['POST'])
 def add_user():
     content = request.json
     if not content:
         abort(400)
-    user = User()
+    user = Users()
+    user.uuid = uuid.uuid4()
     user.username = content['username']
     user.email = content['email']
     user.password = content['password']
