@@ -1,3 +1,3 @@
 #!env/bin/python
-from protrackt import pt
-pt.run(debug=True)
+from app import app
+app.run(debug=True)
