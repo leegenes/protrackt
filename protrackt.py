@@ -1,7 +1,6 @@
 from flask import Flask, request, make_response, abort, jsonify
-from app import pt
+from app import app
 from app.models import Base, User
-from sqlalchemy import create_engine, update
 
 @pt.route('/api/v0/users/add_user', methods=['POST'])
 def add_user():
@@ -19,4 +18,4 @@ def add_user():
         abort(400, "User, {}, not added. Error on insert to db".format(user.username))
 
 if __name__ == '__main__':
-    pt.run()
+    app.run()

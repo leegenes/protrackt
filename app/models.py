@@ -17,7 +17,7 @@ class User(Base):
         return self.username
 
 class UserDetail(Base):
-    uid = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    uid = db.Column(db.Integer, db.ForeignKey('user.id'))
     user_first = db.Column(db.String(50))
     user_last = db.Column(db.String(75))
     user_preferred = db.Column(db.String(50))
