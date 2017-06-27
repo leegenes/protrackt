@@ -1,3 +1,3 @@
-# protrackttool
+# protrackt-api
 
-a tool for tracking your professional life
+api for protrackt, a tool for tracking your professional self
