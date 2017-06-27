@@ -12,8 +12,11 @@ def add_user():
     user.username = content['username']
     user.email = content['email']
     user.password = content['password']
-
-    return "New user, {}, added".format(user.username)
+    try:
+        db.session.add(user)
+        return "New user, {}, added".format(user.username)
+    except:
+        abort(400, "User, {}, not added. Error on insert to db".format(user.username))
 
 if __name__ == '__main__':
     pt.run()
