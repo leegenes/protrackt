@@ -1,16 +1,17 @@
 from app import db
 from sqlalchemy.ext.declarative import declared_attr
+from datetime import datetime
 
 class Base(db.Model):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
-                                onupdate=db.func.current_timestamp())
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_modified = db.Column(db.DateTime, default=datetime.utcnow,
+                                onupdate=datetime.utcnow)
 
 class Users(Base):
-    uuid = db.Column(db.String(32),
+    uuid = db.Column(db.String(36),
         unique=True, nullable=False, primary_key=True)
     username = db.Column(db.String(50),
         unique=True, nullable=False)
@@ -18,14 +19,13 @@ class Users(Base):
         unique=True, nullable=False)
     password = db.Column(db.String(75),
         unique=True, nullable=False)
-    companies = db.relationship('Company', backref='users')
-    schools = db.relationship('School', backref='users')
+    organizations = db.relationship('Organization', backref='users')
 
     def __repr__(self):
         return str(self.uuid) + ", " + self.username
 
 class UserDetail(Base):
-    uuid = db.Column(db.String(32), db.ForeignKey('users.uuid'),
+    uuid = db.Column(db.String(36), db.ForeignKey('users.uuid'),
         nullable=False)
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(75))
@@ -45,7 +45,7 @@ class Experience(Base):
     __abstract__ = True
     @declared_attr
     def uuid(cls):
-        return db.Column(db.String(32), db.ForeignKey('users.uuid'),
+        return db.Column(db.String(36), db.ForeignKey('users.uuid'),
                 nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime)
@@ -72,7 +72,7 @@ class Role(Experience):
     org_id = db.Column(db.Integer, db.ForeignKey('organization.id'),
         nullable=False)
     title = db.Column(db.String(50), nullable=False)
-    projects = db.relationship('Project', backref='role')
+    # projects = db.relationship('Project', backref='role')
 
 # class Degree(Experience):
 #     name = db.Column(db.String(75), nullable=False)
