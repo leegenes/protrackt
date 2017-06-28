@@ -1,3 +1,6 @@
+# TODO: resolve foreign key conflicts with uuid
+# TODO: write projects model; uncomment relationships to it
+
 from app import db
 
 class Base(db.Model):
@@ -17,6 +20,8 @@ class Users(Base):
         unique=True, nullable=False)
     password = db.Column(db.String(75),
         unique=True, nullable=False)
+    companies = db.relationship('Company', backref='users')
+    schools = db.relationship('School', backref='users')
 
     def __repr__(self):
         return str(self.uuid) + ", " + self.username
@@ -38,18 +43,18 @@ class UserDetail(Base):
             return self.first_name + ' ' + self.last_name
         return self.preferred_name + ' ' + self.last_name
 
-class Organization(Base):
-    uuid = db.Column(db.String(32), db.ForeignKey('users.uuid'),
-        nullable=False)
-    name = db.Column(db.String(100),
-        nullable=False)
+class Experience(Base):
+    __abstract__ = True
+    uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
+            nullable=False)
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime)
+    description = db.Column(db.Text)
 
-    def __repr__(self):
-        return self.name
+class Organization(Experience):
+    __abstract__ = True
 
-class OrganizationDetail(Base):
-    org_id = db.Column(db.Integer, db.ForeignKey('organization.id'),
-        nullable=False)
+    name = db.Column(db.String(50), unique=True, nullable=False)
     address1 = db.Column(db.String(75))
     address2 = db.Column(db.String(25))
     city = db.Column(db.String(50))
@@ -58,18 +63,32 @@ class OrganizationDetail(Base):
     phone = db.Column(db.String(10))
     website = db.Column(db.String(100))
 
+class Company(Organization):
+    uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
+        nullable=False)
+    roles = db.relationship('Role', backref='company')
 
+class Role(Experience):
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'),
+        nullable=False)
+    title = db.Column(db.String(50), nullable=False)
+    # projects = db.relationship('Project', backref='role')
 
-# exmaple for connecting tables
-# class Polls(Base):
-#     topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'))
-#     option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
-#     vote_count = db.Column(db.Integer, default=0)
-#     status = db.Column(db.Boolean)
-#
-#     topic = db.relationship('Topics', foreign_keys=[topic_id],
-#             backref=db.backref('options', lazy='dynamic'))
-#     option = db.relationship('Options', foreign_keys=[option_id])
-#
-#     def __repr__(self):
-#         return self.option.name
+class School(Organization):
+    uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
+        nullable=False)
+    focuses = db.relationship('Focus', backref='school')
+
+class Focus(Experience):
+    school_id = db.Column(db.Integer, db.ForeignKey('school.id'),
+        nullable=False)
+    title = db.Column(db.String(50), nullable=False)
+    has_degree = db.Column(db.Boolean, nullable=False)
+    # projects = db.relationship('Project', backref='focus')
+
+class Course(Base):
+    focus_id = db.Column(db.Integer, db.ForeignKey('focus.id'),
+        nullable=False)
+    title = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text)
+    # projects = db.relationship('Project', backref='course')
