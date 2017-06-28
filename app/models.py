@@ -57,6 +57,7 @@ class Experience(Base):
 class Organization(Experience):
     __abstract__ = True
 
+    org_typ = db.Column(db.String(25), nullable=False)
     name = db.Column(db.String(50), unique=True, nullable=False)
     address1 = db.Column(db.String(75))
     address2 = db.Column(db.String(25))
@@ -67,8 +68,6 @@ class Organization(Experience):
     website = db.Column(db.String(100))
 
 class Company(Organization):
-    # uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
-    #     nullable=False)
     roles = db.relationship('Role', backref='company')
 
 class Role(Experience):
@@ -78,8 +77,6 @@ class Role(Experience):
     # projects = db.relationship('Project', backref='role')
 
 class School(Organization):
-    # uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
-    #     nullable=False)
     focuses = db.relationship('Focus', backref='school')
 
 class Focus(Experience):
@@ -95,3 +92,8 @@ class Course(Base):
     title = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text)
     # projects = db.relationship('Project', backref='course')
+
+class Skill(Base):
+    uuid = db.Column(db.String(32), db.ForeignKey('users.uuid'),
+        nullable=False)
+    name = db.Column(db.String(50), nullable=False)
