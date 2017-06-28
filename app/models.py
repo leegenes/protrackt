@@ -47,8 +47,8 @@ class Experience(Base):
     def uuid(cls):
         return db.Column(db.String(36), db.ForeignKey('users.uuid'),
                 nullable=False)
-    start_date = db.Column(db.DateTime, nullable=False)
-    end_date = db.Column(db.DateTime)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date)
     description = db.Column(db.Text)
 
 class Organization(Experience):

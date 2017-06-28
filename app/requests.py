@@ -57,7 +57,7 @@ def add_org(uuid):
     - zipcode: string(5) [optional]
     - phone: string(10) [optional]
     - website: string(50) [optional]
-    
+
     Creates new organization for with foreign key uuid.
     """
 
