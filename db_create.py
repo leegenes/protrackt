@@ -1,6 +1,5 @@
 from app import db
-from app.models import Base, Users, UserDetail, Organization, \
-    OrganizationDetail
+from app.models import *
 
 meta = db.metadata
 tables = meta.sorted_tables
