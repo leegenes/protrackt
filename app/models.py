@@ -60,7 +60,7 @@ class Organization(Experience):
     zipcode = db.Column(db.String(5))
     phone = db.Column(db.String(10))
     website = db.Column(db.String(100))
-    # roles = db.relationship('Role', backref='organization')
+    roles = db.relationship('Role', backref='organization')
 
 # class Company(Organization):
 #     roles = db.relationship('Role', backref='company')
@@ -73,7 +73,6 @@ class Role(Experience):
         nullable=False)
     title = db.Column(db.String(50), nullable=False)
     projects = db.relationship('Project', backref='role')
-    degrees = db.relationship('Degree', backref='role')
 
 # class Degree(Experience):
 #     name = db.Column(db.String(75), nullable=False)
