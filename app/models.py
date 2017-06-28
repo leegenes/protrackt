@@ -1,7 +1,7 @@
-# TODO: resolve foreign key conflicts with uuid
 # TODO: write projects model; uncomment relationships to it
 
 from app import db
+from sqlalchemy.ext.declarative import declared_attr
 
 class Base(db.Model):
     __abstract__ = True
@@ -43,10 +43,13 @@ class UserDetail(Base):
             return self.first_name + ' ' + self.last_name
         return self.preferred_name + ' ' + self.last_name
 
+
 class Experience(Base):
     __abstract__ = True
-    uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
-            nullable=False)
+    @declared_attr
+    def uuid(cls):
+        return db.Column(db.String(32), db.ForeignKey('users.uuid'),
+                nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime)
     description = db.Column(db.Text)
@@ -64,8 +67,8 @@ class Organization(Experience):
     website = db.Column(db.String(100))
 
 class Company(Organization):
-    uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
-        nullable=False)
+    # uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
+    #     nullable=False)
     roles = db.relationship('Role', backref='company')
 
 class Role(Experience):
@@ -75,8 +78,8 @@ class Role(Experience):
     # projects = db.relationship('Project', backref='role')
 
 class School(Organization):
-    uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
-        nullable=False)
+    # uuid = db.Column(db.String(32), db.ForeignKey('users.id'),
+    #     nullable=False)
     focuses = db.relationship('Focus', backref='school')
 
 class Focus(Experience):
