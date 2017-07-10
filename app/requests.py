@@ -4,12 +4,15 @@ from app.models import Users, Organization, Project
 from uuid import uuid4
 import app.protrackt_lib as pl
 
+BASE_URL = '/api/v0'
+CREATE_URL = BASE_URL + '/users/<uuid>/create'
+
 ### USER RELATED REQUESTS ###
 @app.route('/')
 def hello():
     return 'hello, world'
 
-@app.route('/api/v0/users/add_user', methods=['POST'])
+@app.route(BASE_URL + '/create_user', methods=['POST'])
 def add_user():
     """Add new user.
 
@@ -39,8 +42,41 @@ def add_user():
     except:
         abort(400, "User, {}, not added. Error on insert to db".format(user.username))
 
+# @app.route(BASE_URL + '/users/<uuid>', methods=['GET'])
+# def get_user(uuid):
+
+
+@app.route(BASE_URL + '/users/<uuid>', methods=['POST'])
+def update_user(uuid):
+    """Updates a user's personal information.
+
+    Receives
+    - uuid: uuid4 [required - in URL]
+    - first_name: string [optional]
+    - last_name: string [optional]
+    - preferred_name: string [optional]
+    - address1: string [optional]
+    - address2: string [optional]
+    - city: string [optional]
+    - state: two-char string [optional]
+    - zipcode: five-char string [optional]
+
+    Updates user information on account.
+    """
+
+    content = request.json
+    if not content:
+        abort(400)
+
+    try:
+        user_detail = UserDetail.query.filter_by(uuid).first()
+        user_detail.update(**content)
+    except:
+        abort(400)
+
+
 ### ORGANIZTION RELATED REQUESTS ###
-@app.route('/api/v0/users/<uuid>/add_org', methods=['POST'])
+@app.route(CREATE_URL + '/org', methods=['POST'])
 def add_org(uuid):
     """Adds new organization for given user.
 
@@ -78,7 +114,26 @@ def add_org(uuid):
     except:
         abort(400)
 
-@app.route('/api/v0/users/<uuid>/add_project', methods=['POST'])
+@app.route(CREATE_URL + '/role', methods=['POST'])
+def add_role(uuid):
+    """ Adds new role for given user.
+
+    Receives
+    - uuid: uuid4 [required - in URL]
+    - start_date: date [required]
+    - end_date: date [optional]
+    - name: string [required]
+    - description: text [optional]
+    - org_id: integer [required]
+
+    Create a new role within an organization for a user.
+    """
+
+    content = request.json
+    if not content or not content['']
+
+
+@app.route(CREATE_URL + '/project', methods=['POST'])
 def add_project(uuid):
     """Adds new project for given user.
 
@@ -89,6 +144,7 @@ def add_project(uuid):
     - name: string [required]
     - description: text [optional]
     - tags: array [optional]
+    - role_id: integer [required]
 
     Create a new project associated to uuid and position/role/degree
     """
