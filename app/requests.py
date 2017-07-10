@@ -8,10 +8,6 @@ BASE_URL = '/api/v0'
 CREATE_URL = BASE_URL + '/users/<uuid>/create'
 
 ### USER RELATED REQUESTS ###
-@app.route('/')
-def hello():
-    return 'hello, world'
-
 @app.route(BASE_URL + '/create_user', methods=['POST'])
 def add_user():
     """Add new user.
@@ -42,9 +38,18 @@ def add_user():
     except:
         abort(400, "User, {}, not added. Error on insert to db".format(user.username))
 
-# @app.route(BASE_URL + '/users/<uuid>', methods=['GET'])
-# def get_user(uuid):
+#TODO: add filters for dates, companies, jobs, skills, projects, etc.
+@app.route(BASE_URL + '/users/<uuid>', methods=['GET'])
+def get_user(uuid):
+    """Returns user information.
 
+    Receives
+    - uuid: uuid4 [required - in URL]
+
+    Outputs user information.
+    """
+
+    return User.query.filter_by(uuid).first()
 
 @app.route(BASE_URL + '/users/<uuid>', methods=['POST'])
 def update_user(uuid):
