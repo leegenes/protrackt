@@ -87,6 +87,8 @@ class Role(Experience):
 #     projects = db.relationship('Project', backref='course')
 
 class Project(Experience):
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'),
+        nullable=False)
     name = db.Column(db.String(50), nullable=False)
 
 class Skill(Base):
