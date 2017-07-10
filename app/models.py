@@ -72,7 +72,7 @@ class Role(Experience):
     org_id = db.Column(db.Integer, db.ForeignKey('organization.id'),
         nullable=False)
     title = db.Column(db.String(50), nullable=False)
-    # projects = db.relationship('Project', backref='role')
+    projects = db.relationship('Project', backref='role')
 
 # class Degree(Experience):
 #     name = db.Column(db.String(75), nullable=False)

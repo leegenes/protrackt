@@ -1,8 +1,8 @@
 from flask import request, make_response, abort, jsonify
 from app import app, db, bcrypt
-from app.models import Users, Organization
+from app.models import Users, Organization, Project
 from uuid import uuid4
-from datetime import datetime
+import app.protrackt_lib as pl
 
 ### USER RELATED REQUESTS ###
 @app.route('/')
@@ -64,18 +64,71 @@ def add_org(uuid):
     content = request.json
     if not content or not content['name']:
         abort(400)
-    content['start_date'] = datetime.strptime(content['start_date'], '%Y-%m-%d')
-    content['uuid'] = uuid
+
+    content['start_date'] = pl.convert_to_date(content['start_date'])
+    content['end_date'] = pl.convert_to_date(content['end_date'])
+
     org = Organization(**content)
-    print(org)
 
     try:
         db.session.add(org)
         db.session.commit()
         return "New org, {}, added for uuid: {}".format(
-            org.name, content['uuid'])
+            org.name, uuid)
     except:
         abort(400)
+
+@app.route('/api/v0/users/<uuid>/add_project', methods=['POST'])
+def add_project(uuid):
+    """Adds new project for given user.
+
+    Receives
+    - uuid: uuid4 [required - in URL]
+    - start_date: date [required]
+    - end_date: date [optional]
+    - name: string [required]
+    - description: text [optional]
+    - tags: array [optional]
+
+    Create a new project associated to uuid and position/role/degree
+    """
+
+    content = request.json
+    if not content or not content['name']:
+        abort(400)
+
+    content['start_date'] = pl.convert_to_date(content['start_date'])
+
+    project = Project({
+        'name': content['name'],
+        'start_date': pl.convert_to_date(content['start_date']),
+        'end_date': pl.convert_to_date(content['start_date']),
+        'description': content['description']
+        })
+
+    skills = []
+    for s in content['skills']:
+        skill = Skill({'name': s})
+
+        project_skill = ProjectSkill({
+            'project_id': project.id,
+            'skill_id': skill.id
+            })
+
+        skills.append({'skill': skill, 'project_skill': project_skill})
+
+    try:
+        db.session.add(project)
+        for skill in skills:
+            db.session.add(skill['skill'])
+            db.session.add(skill['project_skill'])
+        db.session.commit()
+        return "New project {} added for uuid {}".format(
+            project.name, uuid)
+    except:
+        abort(400)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
