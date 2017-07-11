@@ -1,4 +1,4 @@
-from app import db
+from app import db, bcrypt
 from sqlalchemy.ext.declarative import declared_attr
 from datetime import datetime
 
@@ -10,7 +10,8 @@ class Base(db.Model):
     date_modified = db.Column(db.DateTime, default=datetime.utcnow,
                                 onupdate=datetime.utcnow)
 
-class Users(Base):
+class User(Base):
+    __tablename__ = 'users'
     uuid = db.Column(db.String(36),
         unique=True, nullable=False, primary_key=True)
     username = db.Column(db.String(50),
@@ -20,6 +21,13 @@ class Users(Base):
     password = db.Column(db.String(75),
         unique=True, nullable=False)
     organizations = db.relationship('Organization', backref='users')
+
+    def hash_password(self, password):
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+
 
     def __repr__(self):
         return str(self.uuid) + ", " + self.username

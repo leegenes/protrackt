@@ -1,6 +1,6 @@
 from flask import request, make_response, abort, jsonify
 from app import app, db, bcrypt
-from app.models import Users, Organization, Project
+from app.models import User, Organization, Project
 from uuid import uuid4
 import app.protrackt_lib as pl
 
@@ -24,12 +24,11 @@ def add_user():
     if not content:
         abort(400)
 
-    user = Users(
+    user = User(
         uuid=str(uuid4()),
         username=content['username'],
-        email=content['email'],
-        password=bcrypt.generate_password_hash(content['password']).decode('utf-8')
-        )
+        email=content['email'])
+    user.hash_password(content['password'])
 
     try:
         db.session.add(user)
