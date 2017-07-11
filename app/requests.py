@@ -8,8 +8,8 @@ BASE_URL = '/api/v0'
 CREATE_URL = BASE_URL + '/users/<uuid>/create'
 
 ### USER RELATED REQUESTS ###
-@app.route(BASE_URL + '/create_user', methods=['POST'])
-def add_user():
+@app.route(BASE_URL + '/users', methods=['POST'])
+def new_user():
     """Add new user.
 
     Receives
@@ -20,8 +20,10 @@ def add_user():
     Creates new user with login credentials.
     """
     content = request.json
-    print(content)
-    if not content:
+
+    if not content['username'] or not content['password']:
+        return abort(400)
+    if User.query.filter_by(username=content['username']).first():
         abort(400)
 
     user = User(
@@ -134,7 +136,20 @@ def add_role(uuid):
     """
 
     content = request.json
-    if not content or not content['']
+    if not content or not content['name'] or not content['org_id']:
+        abort(400)
+
+    role = Role(**content)
+    role.start_date = pl.convert_to_date(role.start_date)
+    role.end_date = pl.convert_to_date(role.end_date)
+    role.uuid = uuid
+
+    try:
+        db.session.add(role)
+        db.session.commit()
+        return "New role, {}, added to org, {}, for uuid: {}".format(
+            role.name, role.org_id, role.uuid)
+
 
 
 @app.route(CREATE_URL + '/project', methods=['POST'])
