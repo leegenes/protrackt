@@ -1,6 +1,9 @@
-from app import db, bcrypt
+from app import db, bcrypt, auth, app
+from flask import g
 from sqlalchemy.ext.declarative import declared_attr
 from datetime import datetime
+from itsdangerous import (TimedJSONWebSignatureSerializer
+                          as Serializer, BadSignature, SignatureExpired)
 
 class Base(db.Model):
     __abstract__ = True
@@ -25,8 +28,26 @@ class User(Base):
     def hash_password(self, password):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
+    @auth.verify_password
     def verify_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
+
+    def generate_auth_token(self, expiration=25200):
+        s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return data['email']
+        except BadSignature:
+            return None
+        user = User.query.get(data['id'])
+        return user
+
 
 
     def __repr__(self):

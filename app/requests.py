@@ -1,13 +1,33 @@
-from flask import request, make_response, abort, jsonify, url_for
-from app import app, db, bcrypt
+from flask import request, make_response, abort, jsonify, url_for, g
+from app import app, db, bcrypt, auth
 from app.models import User, Organization, Project, UserDetail, Role, Skill
 from uuid import uuid4
 import app.protrackt_lib as pl
 
 BASE_URL = '/api/v0'
 
+@auth.verify_password
+def verify_password(username_or_token, password):
+    user = User.verify_auth_token(username_or_token)
+
+    if not user:
+        user = User.query.filter_by(username=username_or_token).first()
+        if not user or not user.verify_password(password):
+            return False
+
+    g.user = user
+
+    return True
+
+@app.route(BASE_URL + '/token', methods=['GET'])
+@auth.login_required
+def get_auth_token():
+    token = g.user.generate_auth_token()
+
+    return jsonify({ 'token': token.decode('ascii') })
+
 ### USER RELATED REQUESTS ###
-@app.route(BASE_URL + '/users', methods=['POST'])
+@app.route('/api/v0/users', methods=['POST'])
 def new_user():
     """Add new user.
 
@@ -113,6 +133,7 @@ def add_org(uuid):
     """
 
     content = request.json
+    print(content)
     if not content:
         abort(400)
 
@@ -120,15 +141,15 @@ def add_org(uuid):
     pl.convert_to_date(org.start_date)
     pl.convert_to_date(org.end_date)
     org.uuid = uuid
-    try:
-        print("here3")
-        db.session.add(org)
-        db.session.commit()
-        return "New org, {}, added for uuid: {}".format(
-            org.name, uuid)
-    except:
-        print("here4")
-        abort(400)
+# try:
+    print("here3")
+    db.session.add(org)
+    db.session.commit()
+    return "New org, {}, added for uuid: {}".format(
+        org.name, uuid)
+# except:
+#     print("here4")
+#     abort(400)
 
 @app.route(BASE_URL + '/users/<uuid>/org/<org_id>', methods=['POST'])
 def update_org(uuid, org_id):
@@ -216,7 +237,7 @@ def update_role(uuid, role_id):
 
 
 
-@app.route(BASE_URL + 'users/<uuid>/project', methods=['POST'])
+@app.route(BASE_URL + '/users/<uuid>/project', methods=['POST'])
 def add_project(uuid):
     """Adds new project for given user.
 
@@ -238,11 +259,13 @@ def add_project(uuid):
     content['start_date'] = pl.convert_to_date(content['start_date'])
 
     project = Project(**content)
+    project.uuid = uuid
     pl.convert_to_date(project.start_date).date()
-    pl.convert_to_date(project.end_date).date()
+    # pl.convert_to_date(project.end_date).date()
     try:
         db.session.add(project)
         db.session.commit()
+        return "Project added"
     except:
         abort(400)
 
@@ -270,7 +293,22 @@ def get_skill(skill_id):
     return jsonify(skill_id=skill.id,
                     skill=skill.name)
 
+@app.route(BASE_URL + 'users/<uuid>/projectskill', methods=['POST'])
+def connect_skill_to_project(uuid):
+    content = request.json
 
+    if not content:
+        abort(400)
+
+    projectskill = ProjectSkill(**content)
+    projectskill.uuid = uuid
+
+    try:
+        db.session.add(projectskill)
+        db.session.commit()
+        return "Skill applied to project"
+    except:
+        abort(400)
 
 if __name__ == '__main__':
     app.run(debug=True)
